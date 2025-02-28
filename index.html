@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="description" content="StreamVibe - Enjoy unlimited streaming of your favorite movies and TV shows.">
+    <meta property="og:title" content="StreamVibe">
+    <meta property="og:description" content="Premium video streaming platform with the latest movies and shows.">
+    <meta property="og:image" content="thumbnail.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#FF6B6B">
+    <title>StreamVibe | Premium Video Streaming</title>
+    <link rel="stylesheet" href="script.js">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            padding: 1rem;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: rgba(255, 255, 255, 0.9);
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            position: fixed;
+            width: calc(100% - 2rem);
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -250px;
+            width: 250px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 4rem 1rem 1rem;
+            z-index: 999;
+            transition: right 0.3s ease;
+        }
+
+        .drawer.active {
+            right: 0;
+        }
+
+        .drawer a {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            padding: 1rem;
+            font-size: 1rem;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .drawer a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        /* Grid Container */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            max-width: 100%;
+            margin: 4rem auto 2rem;
+        }
+
+        /* Card Styles */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer; /* Indicate clickable card */
+            animation: fadeInScale 0.5s ease-in-out forwards;
+            animation-delay: calc(var(--order) * 0.1s);
+            opacity: 0;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            overflow: hidden;
+        }
+
+        .image-container::after {
+            content: attr(data-title);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .card-img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+
+        .card-content {
+            padding: 1rem;
+        }
+
+        .cta-button {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: 100%;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .cta-button:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Slider Section */
+        .slider-container {
+            position: relative;
+            margin-top: 4rem;
+            overflow: hidden;
+        }
+
+        .slides {
+            display: flex;
+            width: 300%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slide {
+            flex: 0 0 33.33%;
+        }
+
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .slider-arrow:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .slider-arrow.prev-arrow { left: 10px; }
+        .slider-arrow.next-arrow { right: 10px; }
+
+        .slider-dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: #fff;
+        }
+
+        /* Video Player Styles */
+        .video-player {
+            position: fixed;
+            top: 4.5rem;
+            left: 1rem;
+            width: calc(100% - 2rem);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem;
+            z-index: 900;
+            display: none;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-player.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .video-player:fullscreen {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            background: #000;
+            border-radius: 0;
+            border: none;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+            border-radius: 8px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .video-player.playing .video-wrapper,
+        .video-wrapper:active {
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .video-player:fullscreen .video-wrapper {
+            padding-bottom: 0;
+            height: 100%;
+        }
+
+        #youtube-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .custom-controls {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            position: absolute;
+            bottom: 2rem;
+            left: 0.5rem;
+            right: 0.5rem;
+            z-index: 910;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .custom-controls.hidden {
+            opacity: 0;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.2s ease;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .progress-container {
+            position: absolute;
+            bottom: 0.5rem;
+            left: 0.5rem;
+            right: 0.5rem;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 910;
+        }
+
+        .progress {
+            width: 0;
+            height: 100%;
+            background: #ff6b6b;
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        .volume-slider {
+            width: 100px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            outline: none;
+            transition: opacity 0.2s;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .volume-slider:hover::-webkit-slider-thumb {
+            transform: scale(1.2);
+        }
+
+        .play-pause-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: #fff;
+            font-size: 3rem;
+            cursor: pointer;
+            padding: 1rem;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 920;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .play-pause-overlay.hidden {
+            opacity: 0;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 2rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.2s ease;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 910;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .close-player {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(2px);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 910;
+        }
+
+        .close-player:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* Categories Section */
+        .categories-section {
+            padding: 1rem 0;
+        }
+
+        .category-carousel {
+            position: relative;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            padding: 0 1rem;
+            mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+        }
+
+        .category-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-slider {
+            display: flex;
+            gap: 1rem;
+            padding: 0 1rem;
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            flex: 0 0 120px;
+            text-align: center;
+            scroll-snap-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:active {
+            transform: scale(0.95);
+        }
+
+        .category-card a {
+            display: block;
+            text-decoration: none;
+            padding: 0.8rem;
+        }
+
+        .category-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50px;
+            object-fit: cover;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .category-name {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        /* Latest Episodes Section */
+        .latest-episodes {
+            padding: 1rem 0;
+        }
+
+        .episode-grid {
+            display: contents;
+        }
+
+        /* Animation for Cards */
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Section Headers */
+        h2 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Footer Styles */
+        footer {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .footer-section h3 {
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            margin-top: 1rem;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            body { padding: 0.5rem; }
+            header { padding: 0.8rem; width: calc(100% - 1rem); }
+            .logo { font-size: 1rem; }
+            .menu-toggle { font-size: 1.2rem; }
+            .drawer { width: 200px; right: -200px; }
+            .slider-container { margin-top: 3.5rem; }
+            .image-container::after { font-size: 0.9rem; padding: 0.5rem; }
+            .card-content { padding: 0.8rem; }
+            .cta-button { padding: 0.6rem 1rem; font-size: 0.8rem; }
+            .slider-arrow { width: 35px; height: 35px; }
+            h2 { font-size: 1.2rem; }
+            .grid-container { gap: 1rem; margin: 3.5rem auto 1rem; }
+            .category-card { flex: 0 0 100px; }
+            .category-img { width: 80px; height: 80px; }
+            .category-name { font-size: 0.8rem; }
+            .video-player {
+                top: 3.5rem;
+                left: 0.5rem;
+                width: calc(100% - 1rem);
+                padding: 0.3rem;
+                max-height: 50vh;
+            }
+            .custom-controls { 
+                flex-wrap: nowrap; 
+                gap: 0.3rem; 
+                padding: 0.3rem;
+                bottom: 1.5rem;
+            }
+            .control-btn { font-size: 1rem; width: 36px; height: 36px; }
+            .volume-slider { width: 70px; }
+            .progress-container { bottom: 0.3rem; left: 0.3rem; right: 0.3rem; }
+            .play-pause-overlay { font-size: 2rem; width: 60px; height: 60px; }
+            .fullscreen-btn { bottom: 1.5rem; right: 0.3rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo">StreamVibe</div>
+        <button class="menu-toggle" aria-label="Toggle Menu"><i class="fas fa-bars"></i></button>
+    </header>
+
+    <!-- Drawer Menu (Contact Removed) -->
+    <nav class="drawer">
+        <a href="#">Home</a>
+        <a href="#">Categories</a>
+    </nav>
+
+    <!-- Video Player Section -->
+    <div class="video-player" id="video-player">
+        <div class="video-wrapper">
+            <div id="youtube-player"></div>
+        </div>
+        <button class="play-pause-overlay" id="play-pause-overlay"><i class="fas fa-play"></i></button>
+        <div class="custom-controls">
+            <button class="control-btn play-pause" id="play-pause"><i class="fas fa-play"></i></button>
+            <button class="control-btn volume" id="volume-toggle"><i class="fas fa-volume-up"></i></button>
+            <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100">
+        </div>
+        <div class="progress-container">
+            <div class="progress" id="progress"></div>
+        </div>
+        <button class="fullscreen-btn" id="fullscreen-btn"><i class="fas fa-expand"></i></button>
+        <button class="close-player" id="close-player" aria-label="Close Video"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Slider Section -->
+    <div class="slider-container" role="region" aria-label="Promotional Slider">
+        <div class="slides">
+            <div class="slide">
+                <div class="image-container" data-title="Unlimited Fun!">
+                    <img src="Designer (33).jpeg" alt="Unlimited Fun Streaming" class="card-img" loading="lazy">
+                </div>
+                <div class="card-content">
+                    <p>Stream your favorite shows anytime, anywhere.</p>
+                    <button class="cta-button">Start Watching</button>
+                </div>
+            </div>
+            <div class="slide">
+                <div class="image-container" data-title="Girly Adventures Await">
+                    <img src="rajiv.jpeg" alt="Girly Adventures Streaming" class="card-img" loading="lazy">
+                </div>
+                <div class="card-content">
+                    <p>Dive into magical stories and epic fun!</p>
+                    <button class="cta-button">Explore Now</button>
+                </div>
+            </div>
+            <div class="slide">
+                <div class="image-container" data-title="Teen Dream Streams">
+                    <img src="Designer (31).jpeg" alt="Teen Dream Streams" class="card-img" loading="lazy">
+                </div>
+                <div class="card-content">
+                    <p>Watch what you love with your besties.</p>
+                    <button class="cta-button">Join the Fun</button>
+                </div>
+            </div>
+        </div>
+        <button class="slider-arrow prev-arrow" aria-label="Previous Slide"><i class="fas fa-chevron-left"></i></button>
+        <button class="slider-arrow next-arrow" aria-label="Next Slide"><i class="fas fa-chevron-right"></i></button>
+        <div class="slider-dots" role="tablist">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+        <h2>Explore Categories</h2>
+        <div class="category-carousel">
+            <div class="category-slider">
+                <div class="category-card">
+                    <a href="motu.html">
+                        <img src="https://i.ytimg.com/vi/pTTLQDTItI4/hqdefault.jpg?sqp=-oaymwEmCKgBEF5IWvKriqkDGQgBFQAAiEIYAdgBAeIBCggYEAIYBjgBQAE=&rs=AOn4CLCF7CfvNzPewkFr0YPULi_-_hQ4ug" alt="Motu Patlu" class="category-img" loading="lazy">
+                        <span class="category-name">Nath Rishton Ki Agnipariksha</span>
+                    </a>
+                </div>
+                <div class="category-card">
+                    <a href="serial.html">
+                        <img src="https://i.ytimg.com/vi/ulDogZlAhkw/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBASz0cQr4tnPgTmgKbeA8WnRC8qA" alt="Doraemon" class="category-img" loading="lazy">
+                        <span class="category-name">Tose Nainaa Milaai Ke</span>
+                    </a>
+                </div>
+                <div class="category-card">
+                    <a href="tulsi.html">
+                        <img src="https://i.ytimg.com/vi/dWZOWgMhiNc/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDMitEj-ifgeySqNJijvUSWxsRVnw" alt="Bedtime Story" class="category-img" loading="lazy">
+                        <span class="category-name">Tulsi</span>
+                    </a>
+                </div>
+                <div class="category-card">
+                    <a href="shinchan.html">
+                        <img src="Designer (31).jpeg" alt="Shinchan" class="category-img" loading="lazy">
+                        <span class="category-name">Shinchan</span>
+                    </a>
+                </div>
+                <div class="category-card">
+                    <a href="pokemon.html">
+                        <img src="image.jpeg" alt="Pokemon" class="category-img" loading="lazy">
+                        <span class="category-name">Pokemon</span>
+                    </a>
+                </div>
+                <div class="category-card">
+                    <a href="ninja.html">
+                        <img src="Designer (38).jpeg" alt="Ninja Hattori" class="category-img" loading="lazy">
+                        <span class="category-name">Ninja Hattori</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest Episodes Section -->
+    <section class="grid-container latest-episodes">
+        <h2>Latest Episodes</h2>
+        <div class="episode-grid" id="episode-grid">
+            <!-- Videos will be dynamically populated here -->
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About StreamVibe</h3>
+                <p>Stream unlimited fun made just for you!</p>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: <a href="mailto:support@streamvibe.com">support@streamvibe.com</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">© 2025 StreamVibe</div>
+    </footer>
+
+    <script>
+        // Drawer Menu Functionality
+        (function initDrawerMenu() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const drawer = document.querySelector('.drawer');
+            const toggleIcon = menuToggle.querySelector('i');
+
+            function toggleDrawer() {
+                drawer.classList.toggle('active');
+                toggleIcon.className = drawer.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
+                document.body.style.overflow = drawer.classList.contains('active') ? 'hidden' : 'auto';
+            }
+
+            menuToggle.addEventListener('click', toggleDrawer);
+        })();
+
+        // Main Slider Functionality
+        (function initMainSlider() {
+            const slides = document.querySelector('.slides');
+            const slideElements = document.querySelectorAll('.slide');
+            const prevArrow = document.querySelector('.slider-arrow.prev-arrow');
+            const nextArrow = document.querySelector('.slider-arrow.next-arrow');
+            const dots = document.querySelectorAll('.dot');
+            let currentSlide = 0;
+
+            function updateSlide() {
+                slides.style.transform = `translateX(-${currentSlide * 33.33}%)`;
+                dots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
+            }
+
+            prevArrow.addEventListener('click', () => {
+                currentSlide = (currentSlide - 1 + slideElements.length) % slideElements.length;
+                updateSlide();
+            });
+
+            nextArrow.addEventListener('click', () => {
+                currentSlide = (currentSlide + 1) % slideElements.length;
+                updateSlide();
+            });
+
+            dots.forEach((dot, i) => {
+                dot.addEventListener('click', () => {
+                    currentSlide = i;
+                    updateSlide();
+                });
+            });
+
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % slideElements.length;
+                updateSlide();
+            }, 5000);
+
+            updateSlide();
+        })();
+
+        // Category Carousel Scroll Behavior
+        (function initCategoryCarousel() {
+            const categorySlider = document.querySelector('.category-slider');
+            if (!categorySlider) return;
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            categorySlider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - categorySlider.offsetLeft;
+                scrollLeft = categorySlider.scrollLeft;
+            });
+
+            categorySlider.addEventListener('mouseleave', () => {
+                isDown = false;
+            });
+
+            categorySlider.addEventListener('mouseup', () => {
+                isDown = false;
+            });
+
+            categorySlider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - categorySlider.offsetLeft;
+                const walk = (x - startX) * 2;
+                categorySlider.scrollLeft = scrollLeft - walk;
+            });
+
+            categorySlider.addEventListener('touchstart', (e) => {
+                isDown = true;
+                startX = e.touches[0].pageX - categorySlider.offsetLeft;
+                scrollLeft = categorySlider.scrollLeft;
+            });
+
+            categorySlider.addEventListener('touchend', () => {
+                isDown = false;
+            });
+
+            categorySlider.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.touches[0].pageX - categorySlider.offsetLeft;
+                const walk = (x - startX) * 2;
+                categorySlider.scrollLeft = scrollLeft - walk;
+            });
+        })();
+
+        // Fetch YouTube Playlist Videos for Latest Episodes
+        async function fetchPlaylistVideos() {
+            const apiKey = 'YOUR_API_KEY_HERE'; // Replace with your actual API key
+            const playlistId = 'PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG'; // Replace with your playlist ID
+            const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=4&playlistId=${playlistId}&key=${apiKey}`;
+            const episodeGrid = document.getElementById('episode-grid');
+
+            try {
+                console.log('Fetching data from:', url);
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('API Response:', data);
+
+                if (!data.items || data.items.length === 0) {
+                    throw new Error('No items found in the playlist.');
+                }
+
+                episodeGrid.innerHTML = ''; // Clear existing content
+
+                data.items.forEach((item, index) => {
+                    const videoId = item.snippet.resourceId.videoId;
+                    const title = item.snippet.title;
+                    const thumbnail = item.snippet.thumbnails.high.url;
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.style.setProperty('--order', index); // Animation order
+                    card.innerHTML = `
+                        <div class="image-container" data-title="${title}">
+                            <img src="${thumbnail}" alt="${title}" class="card-img" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <p>${title.slice(0, 50)}${title.length > 50 ? '...' : ''}</p>
+                            <button class="cta-button">Watch Now</button>
+                        </div>
+                    `;
+                    // Clicking anywhere on the card starts the video
+                    card.addEventListener('click', () => playVideo(videoId));
+                    episodeGrid.appendChild(card);
+                });
+
+                console.log('Videos loaded into Latest Episodes with click handlers.');
+            } catch (error) {
+                console.error('Error fetching playlist:', error.message || error);
+                episodeGrid.innerHTML = `<p>Failed to load videos: ${error.message || 'Unknown error'}. Check console for details.</p>`;
+            }
+        }
+
+        // Video Player Logic
+        let player;
+        function onYouTubeIframeAPIReady() {
+            // Called by YouTube API when loaded
+        }
+
+        function playVideo(videoId) {
+            const videoPlayer = document.getElementById('video-player');
+            const youtubePlayer = document.getElementById('youtube-player');
+            const playPauseBtn = document.getElementById('play-pause');
+            const playPauseOverlay = document.getElementById('play-pause-overlay');
+            const progress = document.getElementById('progress');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const closePlayer = document.getElementById('close-player');
+            const volumeSlider = document.getElementById('volume-slider');
+            const volumeToggle = document.getElementById('volume-toggle');
+
+            if (!window.YT) {
+                const tag = document.createElement('script');
+                tag.src = "https://www.youtube.com/iframe_api";
+                const firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            }
+
+            if (player) {
+                player.loadVideoById(videoId);
+            } else {
+                player = new YT.Player('youtube-player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: videoId,
+                    playerVars: {
+                        'autoplay': 1, // Ensure autoplay
+                        'controls': 0,
+                        'rel': 0,
+                        'showinfo': 0
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+
+            function onPlayerReady(event) {
+                videoPlayer.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                event.target.playVideo(); // Explicitly start playing
+                updateProgress();
+            }
+
+            function onPlayerStateChange(event) {
+                if (event.data === YT.PlayerState.PLAYING) {
+                    videoPlayer.classList.add('playing');
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    playPauseOverlay.innerHTML = '<i class="fas fa-pause"></i>';
+                    playPauseOverlay.classList.add('hidden');
+                } else {
+                    videoPlayer.classList.remove('playing');
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    playPauseOverlay.innerHTML = '<i class="fas fa-play"></i>';
+                    playPauseOverlay.classList.remove('hidden');
+                }
+            }
+
+            function updateProgress() {
+                if (player && player.getDuration) {
+                    const duration = player.getDuration();
+                    const currentTime = player.getCurrentTime();
+                    const percentage = (currentTime / duration) * 100;
+                    progress.style.width = `${percentage}%`;
+                    setTimeout(updateProgress, 100);
+                }
+            }
+
+            playPauseBtn.onclick = () => {
+                if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    player.pauseVideo();
+                } else {
+                    player.playVideo();
+                }
+            };
+
+            playPauseOverlay.onclick = () => {
+                if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    player.pauseVideo();
+                } else {
+                    player.playVideo();
+                }
+            };
+
+            volumeSlider.oninput = () => {
+                player.setVolume(volumeSlider.value);
+                volumeToggle.innerHTML = volumeSlider.value == 0 ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            };
+
+            volumeToggle.onclick = () => {
+                if (player.isMuted()) {
+                    player.unMute();
+                    volumeToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+                } else {
+                    player.mute();
+                    volumeToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                }
+            };
+
+            fullscreenBtn.onclick = () => {
+                if (!document.fullscreenElement) {
+                    videoPlayer.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            };
+
+            closePlayer.onclick = () => {
+                player.stopVideo();
+                videoPlayer.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            };
+        }
+
+        // Fetch videos on page load
+        document.addEventListener('DOMContentLoaded', fetchPlaylistVideos);
+    </script>
+</body>
+</html>

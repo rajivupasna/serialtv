@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="description" content="Watch Doraemon episodes with a custom player!">
+    <meta property="og:title" content="Doraemon | StreamVibe">
+    <meta property="og:image" content="doremon-thumbnail.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doraemon | StreamVibe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">STREAMVIBE</div>
+        <a href="index.html" class="back-button"><i class="fas fa-arrow-left"></i> Back</a>
+    </header>
+
+    <main class="motu-patlu-container">
+        <section class="hero">
+            <h1 class="section-title">Doraemon Adventures</h1>
+            <p class="hero-subtitle">Magical fun with Doraemon!</p>
+        </section>
+
+        <section class="video-section">
+            <h2 class="section-title">Latest Episodes</h2>
+            <div class="video-grid" id="youtube-videos-container"></div>
+            <button class="load-more" id="loadMoreBtn">Load More Fun!</button>
+        </section>
+    </main>
+
+    <div class="video-player-overlay" id="videoPlayerOverlay">
+        <div class="custom-video-player">
+            <video id="video" poster="video-poster.jpg"></video>
+            <div class="gesture-overlay" id="gestureOverlay">
+                <div class="gesture-area left" id="brightnessArea"></div>
+                <div class="gesture-area right" id="volumeArea"></div>
+                <div class="gesture-indicator" id="gestureIndicator"></div>
+            </div>
+            <div class="controls" id="controls">
+                <button id="playPauseBtn" class="control-btn"><i class="fas fa-play"></i></button>
+                <div class="progress">
+                    <input type="range" id="progressBar" min="0" max="100" value="0">
+                </div>
+                <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                <button id="volumeBtn" class="control-btn"><i class="fas fa-volume-up"></i></button>
+                <input type="range" id="volumeBar" min="0" max="1" step="0.1" value="1">
+                <select id="speedSelect" class="control-select">
+                    <option value="0.5">0.5x</option>
+                    <option value="1" selected>1x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2x</option>
+                </select>
+                <button id="screenshotBtn" class="control-btn"><i class="fas fa-camera"></i></button>
+                <button id="closePlayerBtn" class="control-btn"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 StreamVibe - Made for Doraemon Fans!</p>
+        </div>
+    </footer>
+
+    <script>
+        const YOUTUBE_API_KEY = 'AIzaSyApKs1zMe71NuhzW3KKuLoc_sjDJiJgARs'; // Replace with your YouTube API key
+        const PLAYLIST_ID = 'PLYXNQqpfilUFrVbruijsrgPMhmNx7Oce7'; // Doraemon playlist
+        let maxResults = 6;
+        const increment = 6;
+
+        const videoPlayerOverlay = document.getElementById('videoPlayerOverlay');
+        const video = document.getElementById('video');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressBar = document.getElementById('progressBar');
+        const currentTime = document.getElementById('currentTime');
+        const duration = document.getElementById('duration');
+        const volumeBtn = document.getElementById('volumeBtn');
+        const volumeBar = document.getElementById('volumeBar');
+        const speedSelect = document.getElementById('speedSelect');
+        const screenshotBtn = document.getElementById('screenshotBtn');
+        const closePlayerBtn = document.getElementById('closePlayerBtn');
+        const gestureOverlay = document.getElementById('gestureOverlay');
+        const gestureIndicator = document.getElementById('gestureIndicator');
+
+        let isDragging = false;
+        let startX, startY, initialValue;
+
+        async function fetchDoraemonVideos(max) {
+            try {
+                const response = await fetch(
+                    `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=${max}&playlistId=${PLAYLIST_ID}&key=${YOUTUBE_API_KEY}`
+                );
+                const data = await response.json();
+                displayYouTubeVideos(data.items);
+                if (data.items.length >= 50) document.getElementById('loadMoreBtn').style.display = 'none';
+            } catch (error) {
+                console.error('Error fetching videos:', error);
+                document.getElementById('youtube-videos-container').innerHTML = 
+                    '<div class="error">Failed to load episodes. Please try again later.</div>';
+            }
+        }
+
+        function displayYouTubeVideos(videos) {
+            const container = document.getElementById('youtube-videos-container');
+            container.innerHTML = '';
+            videos.forEach((video, index) => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card youtube-video-card';
+                videoCard.style.animationDelay = `${index * 0.1}s`;
+                videoCard.innerHTML = `
+                    <div class="card-image-wrapper">
+                        ${index === 0 ? '<div class="episode-tag">New!</div>' : ''}
+                        <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" class="youtube-thumbnail">
+                        <h3 class="video-title-overlay">${video.snippet.title}</h3>
+                    </div>
+                    <div class="video-card-content">
+                        <div class="episode-info">
+                            <span class="publish-date">${new Date(video.snippet.publishedAt).toLocaleDateString()}</span>
+                            <span>${video.snippet.videoOwnerChannelTitle}</span>
+                        </div>
+                        <p>${video.snippet.description.substring(0, 80)}...</p>
+                    </div>
+                `;
+                videoCard.addEventListener('click', () => playVideo(video.snippet.resourceId.videoId));
+                container.appendChild(videoCard);
+            });
+        }
+
+        async function playVideo(videoId) {
+            const streamUrl = `https://cors-anywhere.herokuapp.com/https://www.youtube.com/watch?v=${videoId}`; // Proxy for demo
+            video.src = 'sample-video.mp4'; // Placeholder: Replace with actual streaming logic if available
+            videoPlayerOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            video.play();
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+
+        function togglePlayPause() {
+            if (video.paused) {
+                video.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                video.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        video.addEventListener('loadedmetadata', () => {
+            duration.textContent = formatTime(video.duration);
+            progressBar.max = video.duration;
+        });
+
+        video.addEventListener('timeupdate', () => {
+            progressBar.value = video.currentTime;
+            currentTime.textContent = formatTime(video.currentTime);
+        });
+
+        playPauseBtn.addEventListener('click', togglePlayPause);
+
+        progressBar.addEventListener('input', () => {
+            video.currentTime = progressBar.value;
+        });
+
+        volumeBtn.addEventListener('click', () => {
+            if (video.muted) {
+                video.muted = false;
+                volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                volumeBar.value = video.volume;
+            } else {
+                video.muted = true;
+                volumeBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                volumeBar.value = 0;
+            }
+        });
+
+        volumeBar.addEventListener('input', () => {
+            video.volume = volumeBar.value;
+            video.muted = false;
+            volumeBtn.innerHTML = video.volume === 0 ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+        });
+
+        speedSelect.addEventListener('change', () => {
+            video.playbackRate = speedSelect.value;
+        });
+
+        screenshotBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const link = document.createElement('a');
+            link.download = `doraemon-screenshot-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        closePlayerBtn.addEventListener('click', () => {
+            videoPlayerOverlay.style.display = 'none';
+            video.pause();
+            document.body.style.overflow = 'auto';
+        });
+
+        videoPlayerOverlay.addEventListener('click', (e) => {
+            if (e.target === videoPlayerOverlay) {
+                videoPlayerOverlay.style.display = 'none';
+                video.pause();
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        gestureOverlay.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            initialValue = startX < window.innerWidth / 2 ? video.style.filter ? parseFloat(video.style.filter.match(/brightness\(([^)]+)\)/)?.[1] || 1) : 1 : video.volume;
+            isDragging = true;
+        });
+
+        gestureOverlay.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - startX;
+            const deltaY = startY - touch.clientY;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                const seekChange = (deltaX / window.innerWidth) * video.duration;
+                video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seekChange));
+                gestureIndicator.textContent = `Seek: ${formatTime(video.currentTime)}`;
+            } else {
+                if (startX < window.innerWidth / 2) {
+                    const brightness = Math.max(0.1, Math.min(2, initialValue + deltaY / 200));
+                    video.style.filter = `brightness(${brightness})`;
+                    gestureIndicator.textContent = `Brightness: ${(brightness * 100).toFixed(0)}%`;
+                } else {
+                    const volume = Math.max(0, Math.min(1, initialValue + deltaY / 200));
+                    video.volume = volume;
+                    volumeBar.value = volume;
+                    volumeBtn.innerHTML = volume === 0 ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+                    gestureIndicator.textContent = `Volume: ${(volume * 100).toFixed(0)}%`;
+                }
+            }
+            gestureIndicator.style.display = 'block';
+            e.preventDefault();
+        });
+
+        gestureOverlay.addEventListener('touchend', () => {
+            isDragging = false;
+            gestureIndicator.style.display = 'none';
+        });
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        document.getElementById('loadMoreBtn').addEventListener('click', () => {
+            maxResults += increment;
+            fetchDoraemonVideos(maxResults);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => fetchDoraemonVideos(maxResults));
+    </script>
+</body>
+</html>

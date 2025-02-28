@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamVibe | Motu Patlu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        /* Header Styles */
+        header {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        .back-button {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Video Player Styles */
+        .video-player {
+            position: fixed;
+            top: 4rem;
+            left: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 10px;
+            z-index: 900;
+            display: none;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 10px 10px 0 0;
+        }
+
+        #youtube-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Custom Controls */
+        .custom-controls {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .progress-container {
+            flex-grow: 1;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .progress {
+            height: 100%;
+            background: #ff6b6b;
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        /* Episodes Grid */
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+            margin-top: 5rem;
+        }
+
+        .episode-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .episode-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        /* Error Handling */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff6b6b;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        .error-message {
+            padding: 2rem;
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid #ff6b6b;
+            border-radius: 10px;
+            color: #ff6b6b;
+            text-align: center;
+            margin: 2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .episodes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+            
+            .video-player {
+                top: 3.5rem;
+                left: 0.5rem;
+                right: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">StreamVibe</div>
+        <a href="#" class="back-button" id="back-button"><i class="fas fa-arrow-left"></i> Back</a>
+    </header>
+
+    <div class="video-player" id="video-player">
+        <div class="video-wrapper">
+            <div id="youtube-player"></div>
+        </div>
+        <div class="custom-controls">
+            <button class="control-btn" id="play-pause"><i class="fas fa-play"></i></button>
+            <div class="progress-container" id="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <button class="control-btn" id="volume-toggle"><i class="fas fa-volume-up"></i></button>
+            <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100">
+            <button class="control-btn" id="fullscreen"><i class="fas fa-expand"></i></button>
+        </div>
+    </div>
+
+    <div class="episodes-grid" id="episodes-grid"></div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        const API_KEY = 'AIzaSyDyo7FVtsQjXylNBteVlbyxfxzVeMjs7QQ'; // Replace with your API key
+        const PLAYLIST_ID = 'PLAepapbv7F5DyN14avw0N7-ETJqoWitqz';
+        const episodesGrid = document.getElementById('episodes-grid');
+        const videoPlayer = document.getElementById('video-player');
+        let player;
+
+        async function fetchVideos() {
+            try {
+                episodesGrid.innerHTML = '<div class="loader"></div>';
+                
+                const response = await fetch(
+                    `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${PLAYLIST_ID}&key=${API_KEY}`
+                );
+                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const data = await response.json();
+                if (!data.items.length) throw new Error('No videos found in playlist');
+                
+                episodesGrid.innerHTML = '';
+                data.items.forEach((item, index) => {
+                    const video = item.snippet;
+                    const card = document.createElement('div');
+                    card.className = 'episode-card';
+                    card.innerHTML = `
+                        <img src="${video.thumbnails.medium.url}" class="card-img" alt="${video.title}">
+                        <div class="card-content">
+                            <h3>${video.title}</h3>
+                            <p>Episode ${index + 1}</p>
+                        </div>
+                    `;
+                    card.addEventListener('click', () => playVideo(video.resourceId.videoId));
+                    episodesGrid.appendChild(card);
+                });
+            } catch (error) {
+                episodesGrid.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        ${error.message}
+                    </div>
+                `;
+                console.error('Fetch error:', error);
+            }
+        }
+
+        function playVideo(videoId) {
+            if (player) player.destroy();
+            
+            player = new YT.Player('youtube-player', {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    autoplay: 1,
+                    controls: 0,
+                    modestbranding: 1
+                },
+                events: {
+                    onReady: () => {
+                        videoPlayer.style.display = 'block';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    },
+                    onStateChange: updateControls
+                }
+            });
+        }
+
+        function updateControls(event) {
+            const playPauseBtn = document.getElementById('play-pause');
+            if (event.data === YT.PlayerState.PLAYING) {
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                updateProgress();
+            } else {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        function updateProgress() {
+            if (player && player.getCurrentTime) {
+                const progress = (player.getCurrentTime() / player.getDuration()) * 100;
+                document.getElementById('progress').style.width = `${progress}%`;
+                requestAnimationFrame(updateProgress);
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('play-pause').addEventListener('click', () => {
+            player.getPlayerState() === YT.PlayerState.PLAYING 
+                ? player.pauseVideo() 
+                : player.playVideo();
+        });
+
+        document.getElementById('volume-toggle').addEventListener('click', () => {
+            player.isMuted() ? player.unMute() : player.mute();
+        });
+
+        document.getElementById('volume-slider').addEventListener('input', (e) => {
+            player.setVolume(e.target.value);
+        });
+
+        document.getElementById('progress-bar').addEventListener('click', (e) => {
+            const rect = e.target.getBoundingClientRect();
+            const seekTime = (e.clientX - rect.left) / rect.width * player.getDuration();
+            player.seekTo(seekTime, true);
+        });
+
+        document.getElementById('fullscreen').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                videoPlayer.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        document.getElementById('back-button').addEventListener('click', () => {
+            videoPlayer.style.display = 'none';
+            if (player) player.stopVideo();
+        });
+
+        // Initialize
+        fetchVideos();
+    </script>
+</body>
+</html>
